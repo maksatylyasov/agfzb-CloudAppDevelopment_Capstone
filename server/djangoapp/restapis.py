@@ -1,7 +1,7 @@
 import requests
 import json
 # import related models here
-from .models import CarDealer
+from .models import CarDealer, DealerReview
 from requests.auth import HTTPBasicAuth
 
 
@@ -13,13 +13,15 @@ def get_request(url, **kwargs):
     print("GET from {} ".format(url))
     try:
         # Call get method of requests library with URL and parameters
-        params = dict()
-        params["text"] = kwargs["text"]
-        params["version"] = kwargs["version"]
-        params["features"] = kwargs["features"]
-        params["return_analyzed_text"] = kwargs["return_analyzed_text"]
-        response = requests.get(url, params=params, headers={'Content-Type': 'application/json'},
-                                    auth=HTTPBasicAuth('apikey', api_key))
+        #params = dict()
+        #params["text"] = kwargs["text"]
+        #params["version"] = kwargs["version"]
+        #params["features"] = kwargs["features"]
+        #params["return_analyzed_text"] = kwargs["return_analyzed_text"]
+        if "apikey" in kwargs:
+            response = requests.get(url, headers={'Content-Type':'application/json'}, params=kwargs, auth=HTTPBasicAuth("apikey", kwargs["apikey"]))
+        else:
+            response = requests.get(url, headers={'Content-Type':'application/json'}, params=kwargs)
     except:
         # If any error occurs
         print("Network exception occurred")
@@ -55,7 +57,7 @@ def get_dealers_from_cf(url, **kwargs):
     json_result = get_request(url)
     if json_result:
         # Get the row list in JSON as dealers
-        dealers = json_result["rows"]
+        dealers = json_result['result']
         # For each dealer object
         for dealer in dealers:
             # Get its content in `doc` object
@@ -79,18 +81,18 @@ def get_dealer_reviews_from_cf(url, dealerId):
     results = []
     json_result = get_request(url, dealerId=dealerId)
     if json_result:
-        reviews = json_result["body"]["data"]["docs"]
+        reviews = json_result['result']['rows']
         for review in reviews:
-            review_doc = review
+            review_doc = review['doc']
             review_obj = DealerReview(dealership=review_doc["dealership"], purchase=review_doc["purchase"], 
                                    id=review_doc["id"], review=review_doc["review"], purchase_date=review_doc["purchase_date"],
                                    car_make=review_doc["car_make"], car_model=review_doc["car_model"], car_year=review_doc["car_year"],
                                    name=review_doc["name"], sentiment = "",
                                    )
-            if review_obj.review:
-                review_obj.sentiment = analyze_review_sentiments(review_obj.review)
-            else:
-                review_obj.sentiment = 'neutral'
+            #if review_obj.review:
+            #    review_obj.sentiment = analyze_review_sentiments(review_obj.review)
+            #else:
+            review_obj.sentiment = 'neutral'
             results.append(review_obj)
 
     return results
