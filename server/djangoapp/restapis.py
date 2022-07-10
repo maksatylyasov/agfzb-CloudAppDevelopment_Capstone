@@ -84,16 +84,16 @@ def get_dealer_reviews_from_cf(url, dealerId):
         reviews = json_result['result']['rows']
         for review in reviews:
             review_doc = review['doc']
-            review_obj = DealerReview(dealership=review_doc["dealership"], purchase=review_doc["purchase"], 
+            if review_doc["purchase"]==True and dealerId==review_doc["dealership"]:
+                review_obj = DealerReview(dealership=review_doc["dealership"], purchase=review_doc["purchase"], 
                                    id=review_doc["id"], review=review_doc["review"], purchase_date=review_doc["purchase_date"],
                                    car_make=review_doc["car_make"], car_model=review_doc["car_model"], car_year=review_doc["car_year"],
-                                   name=review_doc["name"], sentiment = "",
-                                   )
+                                   name=review_doc["name"], sentiment = analyze_review_sentiments(review_doc["review"]))
             #if review_obj.review:
             #    review_obj.sentiment = analyze_review_sentiments(review_obj.review)
             #else:
-            review_obj.sentiment = 'neutral'
-            results.append(review_obj)
+                review_obj.sentiment = 'neutral'
+                results.append(review_obj)
 
     return results
 
@@ -115,7 +115,10 @@ def analyze_review_sentiments(text):
     
     response = requests.post(url, json=params, headers={'Content-Type': 'application/json'},
                                     auth=('apikey', api_key))
-    sentiment = response.json()["sentiment"]["document"]["label"]                                
-    return sentiment
+    try:
+        sentiment=response.json()['sentiment']['document']['label']
+        return sentiment
+    except:
+        return "neutral"
 
 

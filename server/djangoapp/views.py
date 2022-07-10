@@ -106,11 +106,11 @@ def get_dealerships(request):
 def get_dealer_details(request, dealer_id):
     if request.method == "GET":
         #url = "your-cloud-function-domain/dealerships/dealer-get"
-        url = "https://d723dfa3.us-south.apigw.appdomain.cloud/dealership-capstone-api/review/review-get"
+        url = "https://d723dfa3.us-south.apigw.appdomain.cloud/dealership-capstone-api/review"
         # Get dealers from the URL
         reviews = get_dealer_reviews_from_cf(url,dealer_id)
         # Concat all dealer's short name
-        reviews_text = ' '.join([review.review for review in reviews])
+        reviews_text = ', '.join([review.review for review in reviews])
         #add language analyzer result for display
 
         # Return a list of dealer short name
