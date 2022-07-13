@@ -85,14 +85,15 @@ def get_dealer_reviews_from_cf(url, dealerId):
         for review in reviews:
             review_doc = review['doc']
             if review_doc["purchase"]==True and dealerId==review_doc["dealership"]:
+
                 review_obj = DealerReview(dealership=review_doc["dealership"], purchase=review_doc["purchase"], 
                                    review_id=review_doc["review_id"], review=review_doc["review"], purchase_date=review_doc["purchase_date"],
                                    car_make=review_doc["car_make"], car_model=review_doc["car_model"], car_year=review_doc["car_year"],
-                                   name=review_doc["name"], sentiment = analyze_review_sentiments(review_doc["review"]))
-            #if review_obj.review:
-            #    review_obj.sentiment = analyze_review_sentiments(review_obj.review)
-            #else:
-                review_obj.sentiment = 'neutral'
+                                   name=review_doc["name"], sentiment = "")
+                if review_obj.review:
+                    review_obj.sentiment = analyze_review_sentiments(review_obj.review)
+                else:
+                    review_obj.sentiment = 'neutral'
                 results.append(review_obj)
 
     return results
@@ -102,8 +103,11 @@ def get_dealer_reviews_from_cf(url, dealerId):
 # - Call get_request() with specified arguments
 # - Get the returned sentiment label such as Positive or Negative
 def analyze_review_sentiments(text):
-    url = 'https://api.us-south.natural-language-understanding.watson.cloud.ibm.com/instances/81088bae-0cf3-49ec-bb90-23e14fc0b903'
-    api_key = 'iFUQ3cuf7LY8urTxue6Ie8_5UpLNkbVA1P9i-6gpKvTy'
+    #url = "https://api.us-south.natural-language-understanding.watson.cloud.ibm.com/instances/81088bae-0cf3-49ec-bb90-23e14fc0b903"
+    
+    #watson endpoint api url
+    url = "https://d723dfa3.us-south.apigw.appdomain.cloud/dealership-capstone-api/sentiment"
+    api_key = "iFUQ3cuf7LY8urTxue6Ie8_5UpLNkbVA1P9i-6gpKvTy"
     params = {
         "text": text,
         "features": {
@@ -115,10 +119,15 @@ def analyze_review_sentiments(text):
     
     response = requests.post(url, json=params, headers={'Content-Type': 'application/json'},
                                     auth=('apikey', api_key))
-    try:
-        sentiment=response.json()['sentiment']['document']['label']
-        return sentiment
-    except:
-        return "neutral"
+    #try:
+    
+         #sentiment=response['sentiment']['document']
+    #return response.json()['sentiment']['document']['label']
+    #except:
+    if response:
+        return response.json()['sentiment']['document']['label']
+    else:
+        return 'neutral'
+    #return response.json()
 
 

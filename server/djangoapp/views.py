@@ -117,7 +117,19 @@ def get_dealer_details(request, dealer_id):
         #context["dealer_id"] = dealer_id
         # Concat all dealer's short name
         reviews_text = ', '.join([review.review for review in reviews])
+        
         #add language analyzer result for display
+        print("ANALYZE")
+        #sentiment = {}
+        #for review in reviews:
+        #    if review.sentiment:
+        #        print(review.sentiment)
+        #        if review.sentiment=="negative":
+        #            sentiment["sentiment"] = "negative"
+        #        elif review.sentiment=="positive":
+        #            sentiment["sentiment"] = "positive"
+        #        elif review.sentiment=="neutral":
+        #            sentiment["sentiment"] = "neutral"
         
 
         #Get the reviews to load on dealers_details.html
@@ -130,9 +142,10 @@ def get_dealer_details(request, dealer_id):
         for review in reviews:
             review = review["doc"]
             if review["dealership"]==dealer_id:
-                print("---------------------")
+                review['sentiment'] = analyze_review_sentiments(review['review'])
                 reviews_render.append(review)
-
+                #analyze review to assign the sentiment
+                #print(review['sentiment'])
         #review = reviews[dealer_id-1]
         #review = review["doc"]
         #print(review["name"])
@@ -146,13 +159,11 @@ def get_dealer_details(request, dealer_id):
         #dealership_no = review["dealership"]
         #print(dealer["full_name"])
 
-        print(len(reviews_render))
         context = {
                 'reviews': reviews_render,
                 'reviews_count': len(reviews_render),
                 'dealer_id': dealer_id,
                 'dealership':dealer["full_name"],
-                
         }
         # Return a list of dealer short name
         return render(request, 'djangoapp/dealer_details.html', context)
@@ -169,7 +180,7 @@ def add_review(request, dealer_id):
 
     user = request.user
     carmodel = CarModel.objects.filter(dealer_id=dealer_id)
-    print(carmodel[0].carmake)
+    #print(carmodel[0].carmake)
     #print("carmodel output: "+carmodel.name)
 
     #car_name = carmodel.name
@@ -199,7 +210,6 @@ def add_review(request, dealer_id):
             #review["dealership"] = request.POST["dealership"]
             #review["review"] = request.POST["review"]
             #review["purchase"] = request.POST["purchase"]
-            print("------------------------------")
             #print(dealers)
             context = {
                 'cars': carmodel,
@@ -227,6 +237,7 @@ def add_review(request, dealer_id):
             #print(json_payload)
             result = post_request(url, json_payload, dealerId=dealer_id)
             #print(result)
-            return render(request, 'djangoapp/dealer_details.html', context)
+            return redirect("djangoapp:index")
+            #return render(request, 'djangoapp/dealer_details.html', context)
         #return HttpResponse(result)
     return render(request, 'djangoapp/add_review.html', context)

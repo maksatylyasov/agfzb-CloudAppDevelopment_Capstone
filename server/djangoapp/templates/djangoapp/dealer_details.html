@@ -51,9 +51,10 @@
     <!-- Add reviews as cards -->
     <div class="card-columns">
         <script>
-                document.write('{% for review in reviews %} <div class="card" id="i" value="i"> <img class="card-img-left" alt="Card image cap" src="{{MEDIA_URL}}/emoji/positive.png" width="50" height="51"><div class="card-body"><h4 class="card-title text-center">{{review.car_model}}<br>{{review.car_year}}</h4><p class="card-text text-center">{{review.review}}</p><p class="card-text text-center"><small class="text-muted">Purchased on {{review.purchase_date}}</small></p></div></div> {% endfor %}');
+                document.write('{% for review in reviews %} <div class="card" id="i" value="i"> <img class="card-img-left" alt="Card image cap" src="{{MEDIA_URL}}/emoji/{{review.sentiment}}.png" width="50" height="51"><div class="card-body"><h4 class="card-title text-center">{{review.car_model}}<br>{{review.car_year}}</h4><p class="card-text text-center">{{review.review}}</p><p class="card-text text-center"><small class="text-muted">Purchased on {{review.purchase_date}}</small></p></div></div> {% endfor %}');
 
         </script>
+        
         <!--
         {% for review in reviews %}
         <div class="card" name={{review.id}}>
